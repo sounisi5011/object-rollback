@@ -6,8 +6,8 @@
 ![Type Definitions: TypeScript](https://img.shields.io/static/v1?label=types&message=TypeScript&color=blue)
 <!-- [![install size](https://packagephobia.now.sh/badge?p=object-rollback@0.0.0)](https://packagephobia.now.sh/result?p=object-rollback@0.0.0) -->
 [![Dependencies Status](https://david-dm.org/sounisi5011/object-rollback/status.svg)](https://david-dm.org/sounisi5011/object-rollback)
-<!-- [![Build Status](https://dev.azure.com/sounisi5011/********************/_apis/build/status/sounisi5011.********************?branchName=master)](https://dev.azure.com/sounisi5011/********************/_build/latest?definitionId=****&branchName=master) -->
-<!-- [![Maintainability Status](https://api.codeclimate.com/v1/badges/********************/maintainability)](https://codeclimate.com/github/sounisi5011/object-rollback/maintainability) -->
+[![Build Status](https://dev.azure.com/sounisi5011/npm%20projects/_apis/build/status/sounisi5011.object-rollback?branchName=master)](https://dev.azure.com/sounisi5011/npm%20projects/_build/latest?definitionId=6&branchName=master)
+[![Maintainability Status](https://api.codeclimate.com/v1/badges/12a68b5e4ba161dbd457/maintainability)](https://codeclimate.com/github/sounisi5011/object-rollback/maintainability)
 
 Cancel changes to JavaScript object values (add/update/delete properties, add item into [Map]/[Set], etc.)
 
