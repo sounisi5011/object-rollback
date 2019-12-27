@@ -1,0 +1,130 @@
+{
+  "name": "object-rollback",
+  "version": "0.0.0",
+  "description": "Cancel changes to JavaScript object values (add/update/delete properties, add item into Map/Set, etc.)",
+  "keywords": [],
+  "license": "MIT",
+  "author": "sounisi5011",
+  "files": [
+    "dist/"
+  ],
+  "main": "dist/index",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "ava": "ava",
+    "build": "run-s tsc",
+    "build:readme": "readme-generator --template ./readme-template.mustache",
+    "clean": "del './dist/'",
+    "fmt-pkg": "run-s fmt-pkg:prettier fmt-pkg:sort",
+    "fmt-pkg:prettier": "prettier-package-json --write ./package.json",
+    "fmt-pkg:sort": "sort-package-json ./package.json",
+    "fmt-ts": "run-s fmt-ts:prettier 'lint:eslint -- --fix'",
+    "fmt-ts:prettier": "prettier --write '**/*.ts'",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint --ext .ts ./",
+    "lint:tsc-src": "tsc --noEmit",
+    "lint:tsc-test": "tsc -p ./test/ --noEmit",
+    "release": "run-s release:validation release:build release:publish",
+    "release:build": "run-s clean build",
+    "release:publish": "run-s release:publish:git release:publish:npm",
+    "release:publish:git": "package-version-git-tag --verbose --push",
+    "release:publish:npm": "npm publish --access=public",
+    "release:validation": "npm-run-all release:validation:publishable -p 'release:validation:!(publishable)' test",
+    "release:validation:git-branch": "git-branch-is master",
+    "release:validation:git-work-dir": "is-git-status-clean",
+    "release:validation:publishable": "can-npm-publish --verbose",
+    "test": "run-s test:lint-1 test:unit-test test:lint-2",
+    "test:check-type-defs-pkgs": "check-type-defs-pkgs ./dist/ build",
+    "test:lint-1": "run-s test:readme test:peer-deps lint",
+    "test:lint-2": "run-s test:check-type-defs-pkgs",
+    "test:peer-deps": "check-peer-deps",
+    "test:readme": "run-s 'build:readme -- --test'",
+    "test:unit-test": "run-s ava",
+    "tsc": "tsc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "!(README.md)": [
+      "run-s build:readme --",
+      "git add ./README.md"
+    ],
+    "!(package).json|*.{js,yaml,yml}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ],
+    "README.md": [
+      "run-s test:readme --"
+    ],
+    "package.json": [
+      "prettier-package-json --write",
+      "sort-package-json",
+      "git add"
+    ]
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "files": [
+      "./test/**/*.ts"
+    ],
+    "helpers": [
+      "**/helpers/**/*"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@sounisi5011/check-peer-deps": "github:sounisi5011/check-peer-deps",
+    "@sounisi5011/check-type-defs-pkgs": "file:script/check-type-defs-pkgs",
+    "@sounisi5011/readme-generator": "file:script/readme-generator",
+    "@types/deep-freeze-strict": "1.1.0",
+    "@types/lodash.clonedeep": "4.5.6",
+    "@types/node": "12.12.22",
+    "@typescript-eslint/eslint-plugin": "2.13.0",
+    "@typescript-eslint/parser": "2.13.0",
+    "ava": "2.4.0",
+    "can-npm-publish": "1.3.2",
+    "deep-freeze-strict": "1.1.1",
+    "del-cli": "3.0.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.8.0",
+    "eslint-config-standard": "14.1.0",
+    "eslint-plugin-import": "2.19.1",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-simple-import-sort": "5.0.0",
+    "eslint-plugin-standard": "4.0.1",
+    "git-branch-is": "3.1.0",
+    "husky": "3.1.0",
+    "is-git-status-clean": "1.0.0",
+    "lint-staged": "9.5.0",
+    "lodash.clonedeep": "4.5.0",
+    "npm-run-all": "4.1.5",
+    "package-version-git-tag": "2.0.2",
+    "prettier": "1.19.1",
+    "prettier-package-json": "2.1.3",
+    "sort-package-json": "1.31.0",
+    "ts-node": "8.5.4",
+    "typescript": "3.7.4"
+  },
+  "engines": {
+    "node": ">=8.3.0"
+  }
+}
