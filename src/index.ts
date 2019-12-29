@@ -1,16 +1,11 @@
-import { getAllProperties, isNotPrimitive, objectAllEntries } from './utils';
+import { defaultStateClass, stateClassList, StateInterface } from './state';
+import { isNotPrimitive } from './utils';
 
 export class ObjectState {
-    private __objectMap: WeakMap<
-        object,
-        {
-            descMap: Map<string | symbol, PropertyDescriptor>;
-            childObjectSet: Set<object>;
-        }
-    >;
+    private __objectStateMap: WeakMap<object, StateInterface>;
 
     public constructor(...values: unknown[]) {
-        this.__objectMap = new WeakMap();
+        this.__objectStateMap = new WeakMap();
         for (const value of values) {
             this.set(value);
         }
@@ -18,7 +13,7 @@ export class ObjectState {
 
     public set(value: unknown): this {
         if (isNotPrimitive(value)) {
-            if (this.__objectMap.has(value)) {
+            if (this.__objectStateMap.has(value)) {
                 throw new Error('The specified value has already been set');
             }
             this.__set(value);
@@ -28,7 +23,7 @@ export class ObjectState {
 
     public rollback<T>(value: T): T {
         if (isNotPrimitive(value)) {
-            if (!this.__objectMap.has(value)) {
+            if (!this.__objectStateMap.has(value)) {
                 throw new RangeError(
                     'The specified value has not been set yet',
                 );
@@ -39,20 +34,17 @@ export class ObjectState {
     }
 
     private __set(value: object): void {
-        if (this.__objectMap.has(value)) {
+        if (this.__objectStateMap.has(value)) {
             return;
         }
 
-        const descList = objectAllEntries(
-            Object.getOwnPropertyDescriptors(value),
-        );
-        const descMap = new Map(descList);
-        const childObjectSet = new Set(
-            descList.map(([, desc]) => desc.value).filter(isNotPrimitive),
-        );
+        const StateClass =
+            stateClassList.find(stateClass => stateClass.isTarget(value)) ||
+            defaultStateClass;
+        const state = new StateClass(value);
 
-        this.__objectMap.set(value, { descMap, childObjectSet });
-        for (const childObject of childObjectSet) {
+        this.__objectStateMap.set(value, state);
+        for (const childObject of state.childObjectSet()) {
             this.__set(childObject);
         }
     }
@@ -66,24 +58,13 @@ export class ObjectState {
         }
         processingObjectSet.add(value);
 
-        const data = this.__objectMap.get(value);
-        if (!data) {
+        const state = this.__objectStateMap.get(value);
+        if (!state) {
             return;
         }
-        const { descMap, childObjectSet } = data;
 
-        for (const propName of getAllProperties(value)) {
-            if (!descMap.has(propName)) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-                // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'. No index signature with a parameter of type 'string' was found on type '{}'.
-                delete value[propName];
-            }
-        }
-        for (const [propName, origDesc] of descMap) {
-            Object.defineProperty(value, propName, origDesc);
-        }
-
-        for (const childObject of childObjectSet) {
+        state.rollback();
+        for (const childObject of state.childObjectSet()) {
             this.__rollback(childObject, processingObjectSet);
         }
 
