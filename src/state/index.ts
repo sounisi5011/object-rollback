@@ -1,3 +1,4 @@
+import DateState from './date';
 import MapState from './map';
 import ObjectState from './object';
 import SetState from './set';
@@ -17,6 +18,7 @@ export interface StateInterface {
 
 export const DefaultStateClass: DefaultStateStaticInterface = ObjectState;
 export const stateClassList: ReadonlyArray<StateStaticInterface> = [
+    DateState,
     MapState,
     SetState,
 ];
