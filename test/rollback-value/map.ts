@@ -27,6 +27,26 @@ test('should rollback Map items', async t => {
     t.deepEqual(value, origValueStruct);
 });
 
+test('should rollback Map object properties', t => {
+    const value = new Map([
+        [{}, 1],
+        [{}, 2],
+    ]);
+    const origValueStruct = cloneDeep(value);
+
+    const state = new ObjectState();
+    state.set(value);
+
+    Object.assign(value, {
+        '0': 0,
+        '1': 1,
+    });
+    t.notDeepEqual(value, origValueStruct);
+
+    state.rollback(value);
+    t.deepEqual(value, origValueStruct);
+});
+
 test('should rollback Map items order', async t => {
     const value = new Map([1, 2, 3, 4, 5].map(val => [val, val ** 2]));
     const origValueStruct = cloneDeep(value);
@@ -44,6 +64,33 @@ test('should rollback Map items order', async t => {
         sortList(value.entries(), (a, b) => a[0] - b[0]),
         sortList(origValueStruct.entries(), (a, b) => a[0] - b[0]),
     );
+    t.notDeepEqual(value, origValueStruct);
+
+    state.rollback(value);
+    t.deepEqual(value, origValueStruct);
+});
+
+test('should rollback nested Map items', t => {
+    const key = new Map([
+        [1, 2],
+        [2, 3],
+    ]);
+    const item = new Map([
+        [true, false],
+        [false, null],
+    ]);
+    const value = new Map([
+        [key, null],
+        [null, item],
+    ]);
+    const origValueStruct = cloneDeep(value);
+
+    const state = new ObjectState();
+    state.set(value);
+
+    key.set(NaN, Infinity);
+    item.set(false, true);
+    value.set(new Map(), null);
     t.notDeepEqual(value, origValueStruct);
 
     state.rollback(value);

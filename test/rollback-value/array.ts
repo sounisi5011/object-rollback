@@ -19,6 +19,24 @@ test('should rollback array items', async t => {
     t.deepEqual(value, origValueStruct);
 });
 
+test('should rollback array object properties', t => {
+    const value = [true, false, null, NaN];
+    const origValueStruct = cloneDeep(value);
+
+    const state = new ObjectState();
+    state.set(value);
+
+    Object.assign(value, {
+        x: 1,
+        y: 2,
+        z: 3,
+    });
+    t.notDeepEqual(value, origValueStruct);
+
+    state.rollback(value);
+    t.deepEqual(value, origValueStruct);
+});
+
 test('should rollback array items order', async t => {
     const value = [1, 2, 3, 4, 5];
     const origValueStruct = cloneDeep(value);
@@ -43,6 +61,22 @@ test('should rollback empty array', async t => {
     state.set(value);
 
     value[1] = null;
+    t.notDeepEqual(value, origValueStruct);
+
+    state.rollback(value);
+    t.deepEqual(value, origValueStruct);
+});
+
+test('should rollback nested array items', t => {
+    const item = ['a', 'b', 'c', 'd'];
+    const value = [0, item, 1, 2];
+    const origValueStruct = cloneDeep(value);
+
+    const state = new ObjectState();
+    state.set(value);
+
+    item[1] = item[1].toUpperCase();
+    item[9] = 'nine';
     t.notDeepEqual(value, origValueStruct);
 
     state.rollback(value);
