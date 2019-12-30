@@ -24,6 +24,14 @@ const SetState: StateStaticInterface = class<
             this.__value.set(key, item);
         }
     }
+
+    protected __getChildValueList(): ReadonlyArray<unknown> {
+        return [
+            ...super.__getChildValueList(),
+            ...this.__value.keys(),
+            ...this.__value.values(),
+        ];
+    }
 };
 
 export default SetState;

@@ -23,6 +23,10 @@ const SetState: StateStaticInterface = class<T = unknown> extends ObjectState<
             this.__value.add(item);
         }
     }
+
+    protected __getChildValueList(): ReadonlyArray<unknown> {
+        return [...super.__getChildValueList(), ...this.__itemList];
+    }
 };
 
 export default SetState;

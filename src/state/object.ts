@@ -30,11 +30,13 @@ export default class<T extends object = object> implements StateInterface {
     public childObjectSet(): Set<object> {
         if (!this.__childObjectSet) {
             this.__childObjectSet = new Set(
-                [...this.__propDescMap.values()]
-                    .map(desc => desc.value)
-                    .filter(isNotPrimitive),
+                this.__getChildValueList().filter(isNotPrimitive),
             );
         }
         return this.__childObjectSet;
+    }
+
+    protected __getChildValueList(): ReadonlyArray<unknown> {
+        return [...this.__propDescMap.values()].map(desc => desc.value);
     }
 }
