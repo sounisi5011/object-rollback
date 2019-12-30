@@ -1,12 +1,12 @@
 import { getAllProperties, isNotPrimitive, objectAllEntries } from '../utils';
 import { StateInterface } from '.';
 
-export default class implements StateInterface {
-    private __value: object;
+export default class<T extends object = object> implements StateInterface {
+    protected __value: T;
     private __propDescMap: Map<string | symbol, PropertyDescriptor>;
     private __childObjectSet: Set<object> | null = null;
 
-    public constructor(value: object) {
+    public constructor(value: T) {
         this.__value = value;
         this.__propDescMap = new Map(
             objectAllEntries(Object.getOwnPropertyDescriptors(value)),

@@ -1,4 +1,4 @@
-import { defaultStateClass, stateClassList, StateInterface } from './state';
+import { DefaultStateClass, stateClassList, StateInterface } from './state';
 import { isNotPrimitive } from './utils';
 
 export class ObjectState {
@@ -38,10 +38,11 @@ export class ObjectState {
             return;
         }
 
-        const StateClass =
-            stateClassList.find(stateClass => stateClass.isTarget(value)) ||
-            defaultStateClass;
-        const state = new StateClass(value);
+        const state =
+            stateClassList.reduce<StateInterface | null>(
+                (state, stateClass) => state || stateClass.create(value),
+                null,
+            ) || new DefaultStateClass(value);
 
         this.__objectStateMap.set(value, state);
         for (const childObject of state.childObjectSet()) {
