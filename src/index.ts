@@ -45,7 +45,7 @@ export class ObjectState {
             ) || new DefaultStateClass(value);
 
         this.__objectStateMap.set(value, state);
-        for (const childObject of state.childObjectSet()) {
+        for (const childObject of state.childObjects) {
             this.__set(childObject);
         }
     }
@@ -65,7 +65,7 @@ export class ObjectState {
         }
 
         state.rollback();
-        for (const childObject of state.childObjectSet()) {
+        for (const childObject of state.childObjects) {
             this.__rollback(childObject, processingObjectSet);
         }
 

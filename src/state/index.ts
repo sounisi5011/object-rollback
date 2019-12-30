@@ -12,7 +12,7 @@ export interface StateStaticInterface {
 
 export interface StateInterface {
     rollback(): void;
-    childObjectSet(): Set<object>;
+    childObjects: ReadonlyArray<object> | ReadonlySet<object>;
 }
 
 export const DefaultStateClass: DefaultStateStaticInterface = ObjectState;

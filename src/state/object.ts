@@ -2,14 +2,17 @@ import { getAllProperties, isNotPrimitive, objectAllEntries } from '../utils';
 import { StateInterface } from '.';
 
 export default class<T extends object = object> implements StateInterface {
+    public childObjects: ReadonlySet<object>;
     protected __value: T;
-    private __propDescMap: Map<string | symbol, PropertyDescriptor>;
-    private __childObjectSet: Set<object> | null = null;
+    private __propDescMap: ReadonlyMap<string | symbol, PropertyDescriptor>;
 
     public constructor(value: T) {
         this.__value = value;
         this.__propDescMap = new Map(
             objectAllEntries(Object.getOwnPropertyDescriptors(value)),
+        );
+        this.childObjects = new Set(
+            this.__getChildValueList().filter(isNotPrimitive),
         );
     }
 
@@ -25,15 +28,6 @@ export default class<T extends object = object> implements StateInterface {
         for (const [propName, origDesc] of this.__propDescMap) {
             Object.defineProperty(this.__value, propName, origDesc);
         }
-    }
-
-    public childObjectSet(): Set<object> {
-        if (!this.__childObjectSet) {
-            this.__childObjectSet = new Set(
-                this.__getChildValueList().filter(isNotPrimitive),
-            );
-        }
-        return this.__childObjectSet;
     }
 
     protected __getChildValueList(): ReadonlyArray<unknown> {
