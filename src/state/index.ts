@@ -1,3 +1,4 @@
+import DataViewState from './data-view';
 import DateState from './date';
 import MapState from './map';
 import ObjectState from './object';
@@ -21,4 +22,5 @@ export const stateClassList: ReadonlyArray<StateStaticInterface> = [
     DateState,
     MapState,
     SetState,
+    DataViewState,
 ];
