@@ -67,14 +67,13 @@ test('should rollback "?" in URL object query string', t => {
         `if URL's query is empty, the URL object should not remove the "?" at initialize`,
     );
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     for (const [testName, callback] of queryParametersUpdateCallbackMap) {
         callback(value);
         t.not(String(value), origURL, testName);
 
-        state.rollback(value);
+        state.rollback();
         t.is(String(value), origURL, testName);
     }
 });
@@ -90,14 +89,13 @@ test('should not prepend "?" in query string when rollback URL object', t => {
         `if URL's query is empty, the URL object should not add the "?" at initialize`,
     );
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     for (const [testName, callback] of queryParametersUpdateCallbackMap) {
         callback(value);
         t.is(String(value), origURL, testName);
 
-        state.rollback(value);
+        state.rollback();
         t.is(String(value), origURL, testName);
     }
 });
@@ -113,13 +111,12 @@ test('should rollback "#" in URL object fragment', t => {
         `if URL's fragment is empty, the URL object should not remove the "#" at initialize`,
     );
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.hash = value.hash; // eslint-disable-line no-self-assign
     t.not(String(value), origURL);
 
-    state.rollback(value);
+    state.rollback();
     t.is(String(value), origURL);
 });
 
@@ -134,12 +131,11 @@ test('should not prepend "#" in fragment when rollback URL object', t => {
         `if URL's fragment is empty, the URL object should not add the "#" at initialize`,
     );
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.hash = value.hash; // eslint-disable-line no-self-assign
     t.is(String(value), origURL);
 
-    state.rollback(value);
+    state.rollback();
     t.is(String(value), origURL);
 });

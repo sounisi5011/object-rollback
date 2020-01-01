@@ -47,13 +47,12 @@ for (const TypedArrayConstructor of typedArrayConstructorList) {
         setTypedArrayValue(value, 0, 0xff);
         const origValueStruct = value.slice();
 
-        const state = new ObjectState();
-        state.set(value);
+        const state = new ObjectState(value);
 
         setTypedArrayValue(value, 1, 0x07);
         t.notDeepEqual(value, origValueStruct);
 
-        state.rollback(value);
+        state.rollback();
         t.deepEqual(value, origValueStruct);
     });
 
@@ -62,8 +61,7 @@ for (const TypedArrayConstructor of typedArrayConstructorList) {
         setTypedArrayValue(value, 0, 0xff);
         const origValueStruct = value.slice();
 
-        const state = new ObjectState();
-        state.set(value);
+        const state = new ObjectState(value);
 
         Object.assign(value, {
             x: 1,
@@ -72,7 +70,7 @@ for (const TypedArrayConstructor of typedArrayConstructorList) {
         });
         t.notDeepEqual(value, origValueStruct);
 
-        state.rollback(value);
+        state.rollback();
         t.deepEqual(value, origValueStruct);
     });
 }

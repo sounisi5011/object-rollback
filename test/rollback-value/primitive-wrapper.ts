@@ -18,8 +18,7 @@ for (const PrimitiveWrapperConstructor of primitiveWrapperObjectsConstructorList
         const value = new PrimitiveWrapperConstructor();
         const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
 
-        const state = new ObjectState();
-        state.set(value);
+        const state = new ObjectState(value);
 
         Object.assign(value, {
             hoge: 0,
@@ -30,7 +29,7 @@ for (const PrimitiveWrapperConstructor of primitiveWrapperObjectsConstructorList
             origValuePropStruct,
         );
 
-        state.rollback(value);
+        state.rollback();
         t.deepEqual(
             Object.getOwnPropertyDescriptors(value),
             origValuePropStruct,
