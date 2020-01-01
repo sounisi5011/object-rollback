@@ -16,9 +16,7 @@ Cancel changes to JavaScript object values (add/update/delete properties, add it
 
 ## Install
 
-```sh
-npm install github:sounisi5011/object-rollback
-```
+WIP
 
 ## Usage
 
