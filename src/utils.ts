@@ -19,3 +19,23 @@ export function objectAllEntries<T>(
         value[propName],
     ]);
 }
+
+export function freezeProperties(
+    value: object,
+    properties: ReadonlyArray<string>,
+): void {
+    Object.defineProperties(
+        value,
+        properties.reduce<PropertyDescriptorMap>(
+            (descMap, propName) => ({
+                ...descMap,
+                [propName]: {
+                    writable: false,
+                    enumerable: false,
+                    configurable: false,
+                },
+            }),
+            {},
+        ),
+    );
+}

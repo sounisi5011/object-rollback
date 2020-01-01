@@ -1,5 +1,5 @@
 import { DefaultStateClass, stateClassList, StateInterface } from './state';
-import { isNotPrimitive } from './utils';
+import { freezeProperties, isNotPrimitive } from './utils';
 
 export class ObjectState<T> {
     private readonly __value: T;
@@ -18,18 +18,7 @@ export class ObjectState<T> {
 
         this.__value = value;
         this.__objectStateMap = new WeakMap();
-        Object.defineProperties(this, {
-            __value: {
-                writable: false,
-                enumerable: false,
-                configurable: false,
-            },
-            __objectStateMap: {
-                writable: false,
-                enumerable: false,
-                configurable: false,
-            },
-        });
+        freezeProperties(this, ['__value', '__objectStateMap']);
 
         if (isNotPrimitive(value)) {
             this.__set(value);
