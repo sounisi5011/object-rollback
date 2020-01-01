@@ -16,15 +16,36 @@ Cancel changes to JavaScript object values (add/update/delete properties, add it
 
 ## Install
 
-WIP
+```sh
+npm install github:sounisi5011/object-rollback
+```
 
-## CLI Usage
+## Usage
 
-TODO
+```js
+const { ObjectState } = require('object-rollback');
 
-## Javascript Usage
+const someValue = {
+  a: 1,
+  b: 2,
+  c: [ 1, 2, 3 ],
+};
 
-TODO
+console.log(someValue); // { a: 1, b: 2, c: [ 1, 2, 3 ] }
+
+const state = new ObjectState();
+state.set(someValue);
+
+someValue.b = 200;
+someValue.x = 42;
+someValue.c.push(9);
+
+console.log(someValue); // { a: 1, b: 200, c: [ 1, 2, 3, 9 ], x: 42 }
+
+state.rollback(someValue)
+
+console.log(someValue); // { a: 1, b: 2, c: [ 1, 2, 3 ] }
+```
 
 ## Tests
 
