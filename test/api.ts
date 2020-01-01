@@ -21,17 +21,29 @@ for (const targetValue of objectValues) {
 }
 
 test('Constructor should not accept less than 1 argument', t => {
-    t.throws(() => new ObjectState(), {
-        instanceOf: TypeError,
-        message: `Constructor ${ObjectState.name} requires 1 argument`,
-    });
+    t.throws(
+        () =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore TS2554: Expected 1 arguments, but got 0.
+            new ObjectState(),
+        {
+            instanceOf: TypeError,
+            message: `Constructor ${ObjectState.name} requires 1 argument`,
+        },
+    );
 });
 
 test('Constructor should not accept more than one argument', t => {
-    t.throws(() => new ObjectState({}, {}), {
-        instanceOf: TypeError,
-        message: `Constructor ${ObjectState.name} requires only 1 argument`,
-    });
+    t.throws(
+        () =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore TS2554: Expected 1 arguments, but got 2.
+            new ObjectState({}, {}),
+        {
+            instanceOf: TypeError,
+            message: `Constructor ${ObjectState.name} requires only 1 argument`,
+        },
+    );
 });
 
 for (const targetValue of values) {
