@@ -8,8 +8,7 @@ test('should rollback "lastIndex" property', t => {
     const value = /./gu;
     const copiedValue = new RegExp(value.source, value.flags.replace(/g/g, ''));
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     t.is(value.lastIndex, 0);
     t.deepEqual(value.exec(str), copiedValue.exec(str));
@@ -17,7 +16,7 @@ test('should rollback "lastIndex" property', t => {
     t.notDeepEqual(value.exec(str), copiedValue.exec(str));
     t.is(value.lastIndex, 4);
 
-    state.rollback(value);
+    state.rollback();
 
     t.is(value.lastIndex, 0);
     t.deepEqual(value.exec(str), copiedValue.exec(str));
@@ -28,8 +27,7 @@ test('should rollback RegExp object properties', t => {
     const value = /[Rr]eg[Ee]xp?/;
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     Object.assign(value, {
         hoge: 0,
@@ -37,6 +35,6 @@ test('should rollback RegExp object properties', t => {
     });
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });

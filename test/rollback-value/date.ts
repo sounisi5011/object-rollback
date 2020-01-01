@@ -8,8 +8,7 @@ test('should rollback Date object properties', t => {
     const value = new Date();
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     Object.assign(value, {
         x: 1,
@@ -18,7 +17,7 @@ test('should rollback Date object properties', t => {
     });
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -29,13 +28,12 @@ for (const setterMethodName of getAllPropertyNames(
         const value = new Date(0);
         const origValueStruct = cloneDeep(value);
 
-        const state = new ObjectState();
-        state.set(value);
+        const state = new ObjectState(value);
 
         value[setterMethodName](2);
         t.notDeepEqual(value, origValueStruct);
 
-        state.rollback(value);
+        state.rollback();
         t.deepEqual(value, origValueStruct);
     });
 }

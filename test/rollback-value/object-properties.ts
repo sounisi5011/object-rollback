@@ -16,8 +16,7 @@ test('should rollback object properties', t => {
     };
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     delete value.a;
     Object.assign(value, {
@@ -29,7 +28,7 @@ test('should rollback object properties', t => {
     });
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -49,8 +48,7 @@ test('should rollback object getter / setter properties', t => {
     };
     const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.random = null;
     delete value[
@@ -61,7 +59,7 @@ test('should rollback object getter / setter properties', t => {
         origValuePropStruct,
     );
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(Object.getOwnPropertyDescriptors(value), origValuePropStruct);
 });
 
@@ -93,8 +91,7 @@ test('should rollback object non-enumerable properties', t => {
 
     t.deepEqual(Object.keys(value), []);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     delete value.x;
     value.minusZero = 0;
@@ -106,7 +103,7 @@ test('should rollback object non-enumerable properties', t => {
         origValuePropStruct,
     );
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(Object.getOwnPropertyDescriptors(value), origValuePropStruct);
 });
 
@@ -121,15 +118,14 @@ test('should not rollback object prototype properties', t => {
     const origValueStruct = cloneDeep(value);
     const origValueProtoStruct = cloneDeep(Object.getPrototypeOf(value));
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.y = 20;
     Object.getPrototypeOf(value).w = Infinity;
     t.notDeepEqual(value, origValueStruct);
     t.notDeepEqual(Object.getPrototypeOf(value), origValueProtoStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
     t.notDeepEqual(Object.getPrototypeOf(value), origValueProtoStruct);
 });
@@ -147,8 +143,7 @@ test('should rollback nested object properties', t => {
     };
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.a.y = -1;
     Object.assign(value.b, {
@@ -157,7 +152,7 @@ test('should rollback nested object properties', t => {
     });
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -175,12 +170,11 @@ test('should rollback circular object properties', t => {
     Object.assign(value.c, { circular: value });
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.b = 11;
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });

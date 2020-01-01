@@ -1,36 +1,35 @@
 import { DefaultStateClass, stateClassList, StateInterface } from './state';
-import { isNotPrimitive } from './utils';
+import { freezeProperties, isNotPrimitive } from './utils';
 
-export class ObjectState {
-    private __objectStateMap: WeakMap<object, StateInterface>;
+export class ObjectState<T> {
+    private readonly __value: T;
+    private readonly __objectStateMap: WeakMap<object, StateInterface>;
 
-    public constructor(...values: unknown[]) {
-        this.__objectStateMap = new WeakMap();
-        for (const value of values) {
-            this.set(value);
+    public constructor(value: T) {
+        const argsLen = arguments.length;
+        const className = new.target.name;
+        if (argsLen < 1) {
+            throw new TypeError(`Constructor ${className} requires 1 argument`);
+        } else if (argsLen > 1) {
+            throw new TypeError(
+                `Constructor ${className} requires only 1 argument`,
+            );
         }
-    }
 
-    public set(value: unknown): this {
+        this.__value = value;
+        this.__objectStateMap = new WeakMap();
+        freezeProperties(this, ['__value', '__objectStateMap']);
+
         if (isNotPrimitive(value)) {
-            if (this.__objectStateMap.has(value)) {
-                throw new Error('The specified value has already been set');
-            }
             this.__set(value);
         }
-        return this;
     }
 
-    public rollback<T>(value: T): T {
-        if (isNotPrimitive(value)) {
-            if (!this.__objectStateMap.has(value)) {
-                throw new RangeError(
-                    'The specified value has not been set yet',
-                );
-            }
-            this.__rollback(value);
+    public rollback(): T {
+        if (isNotPrimitive(this.__value)) {
+            this.__rollback(this.__value);
         }
-        return value;
+        return this.__value;
     }
 
     private __set(value: object): void {

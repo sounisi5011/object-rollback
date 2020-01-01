@@ -37,8 +37,7 @@ const someValue = {
 
 console.log(someValue); // { a: 1, b: 2, c: [ 1, 2, 3 ] }
 
-const state = new ObjectState();
-state.set(someValue);
+const state = new ObjectState(someValue);
 
 someValue.b = 200;
 someValue.x = 42;
@@ -46,7 +45,7 @@ someValue.c.push(9);
 
 console.log(someValue); // { a: 1, b: 200, c: [ 1, 2, 3, 9 ], x: 42 }
 
-state.rollback(someValue);
+state.rollback();
 
 console.log(someValue); // { a: 1, b: 2, c: [ 1, 2, 3 ] }
 ```

@@ -6,68 +6,62 @@ import values from './helpers/values';
 import objectValues from './helpers/values/object';
 import primitiveValues from './helpers/values/primitive';
 
-test('set() method should be possible to be called multiple times with the same primitive value', t => {
-    const state = new ObjectState();
-    for (const targetValue of primitiveValues) {
+for (const targetValue of primitiveValues) {
+    const testNameSuffix = inspectValue({ targetValue });
+    test(`Constructor should accept primitive value argument / ${testNameSuffix}`, t => {
+        t.notThrows(() => new ObjectState(targetValue));
+    });
+}
+
+for (const targetValue of objectValues) {
+    const testNameSuffix = inspectValue({ targetValue });
+    test(`Constructor should accept object value argument / ${testNameSuffix}`, t => {
+        t.notThrows(() => new ObjectState(targetValue));
+    });
+}
+
+test('Constructor should not accept less than 1 argument', t => {
+    t.throws(
+        () =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore TS2554: Expected 1 arguments, but got 0.
+            new ObjectState(),
+        {
+            instanceOf: TypeError,
+            message: `Constructor ${ObjectState.name} requires 1 argument`,
+        },
+    );
+});
+
+test('Constructor should not accept more than one argument', t => {
+    t.throws(
+        () =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore TS2554: Expected 1 arguments, but got 2.
+            new ObjectState({}, {}),
+        {
+            instanceOf: TypeError,
+            message: `Constructor ${ObjectState.name} requires only 1 argument`,
+        },
+    );
+});
+
+for (const targetValue of values) {
+    const testNameSuffix = inspectValue({ targetValue });
+
+    test(`rollback() method should return the original value / ${testNameSuffix}`, t => {
         t.notThrows(() => {
-            state.set(targetValue);
-            state.set(targetValue);
-        }, `targetValue: ${inspectValue(targetValue)}`);
-    }
-});
+            const state = new ObjectState(targetValue);
+            t.is(state.rollback(), targetValue);
+        });
+    });
 
-test('set() method should not be possible to call multiple times with the same object value', t => {
-    const state = new ObjectState();
-    for (const targetValue of objectValues) {
-        t.throws(
-            () => {
-                state.set(targetValue);
-                state.set(targetValue);
-            },
-            {
-                message: /(^|\W)The specified value has already been set(\W|$)/i,
-            },
-            'targetValue: ' +
-                inspectValue(targetValue, { filstLineOnly: true }),
-        );
-    }
-});
-
-test('rollback() of primitive values not set yet should success', t => {
-    const state = new ObjectState();
-    for (const targetValue of primitiveValues) {
+    test(`rollback() method should be possible to be called multiple times / ${testNameSuffix}`, t => {
         t.notThrows(() => {
-            state.rollback(targetValue);
-        }, `targetValue: ${inspectValue(targetValue)}`);
-    }
-});
-
-test('rollback() of object values not set yet should fail', t => {
-    const state = new ObjectState();
-    for (const targetValue of objectValues) {
-        t.throws(
-            () => {
-                state.rollback(targetValue);
-            },
-            {
-                instanceOf: RangeError,
-                message: /(^|\W)The specified value has not been set yet(\W|$)/i,
-            },
-            'targetValue: ' +
-                inspectValue(targetValue, { filstLineOnly: true }),
-        );
-    }
-});
-
-test('rollback() method should return the original value', t => {
-    const state = new ObjectState();
-    for (const targetValue of values) {
-        state.set(targetValue);
-        t.is(
-            state.rollback(targetValue),
-            targetValue,
-            'targetValue: ' +
-                inspectValue(targetValue, { filstLineOnly: true }),
-        );
-    }
-});
+            const state = new ObjectState(targetValue);
+            for (let i = 1; i <= 5; i++) {
+                t.notThrows(() => state.rollback(), inspectValue({ i }));
+            }
+        });
+    });
+}

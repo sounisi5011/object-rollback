@@ -32,8 +32,7 @@ for (const ErrorConstructor of errorConstructorList) {
             const value = new ErrorConstructor('message');
             const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
 
-            const state = new ObjectState();
-            state.set(value);
+            const state = new ObjectState(value);
 
             Object.assign(value, { [prop]: 'str' });
             t.notDeepEqual(
@@ -41,7 +40,7 @@ for (const ErrorConstructor of errorConstructorList) {
                 origValuePropStruct,
             );
 
-            state.rollback(value);
+            state.rollback();
             t.deepEqual(
                 Object.getOwnPropertyDescriptors(value),
                 origValuePropStruct,

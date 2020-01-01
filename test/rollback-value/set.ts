@@ -8,14 +8,13 @@ test('should rollback Set items', async t => {
     const value = new Set([1, null, 'A', true, -3]);
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.add(42);
     value.delete(null);
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -23,8 +22,7 @@ test('should rollback Set object properties', t => {
     const value = new Set([NaN, Infinity]);
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     Object.assign(value, {
         '0': 0,
@@ -32,7 +30,7 @@ test('should rollback Set object properties', t => {
     });
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -40,8 +38,7 @@ test('should rollback Set items order', async t => {
     const value = new Set([1, 2, 3, 4, 5]);
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.delete(1);
     value.delete(2);
@@ -52,7 +49,7 @@ test('should rollback Set items order', async t => {
     t.deepEqual(sortList(value.values()), sortList(origValueStruct.values()));
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
 
@@ -66,13 +63,12 @@ test('should rollback nested Set items', t => {
     ]);
     const origValueStruct = cloneDeep(value);
 
-    const state = new ObjectState();
-    state.set(value);
+    const state = new ObjectState(value);
 
     value.add(new Set(['a', 'b', 'c']));
     item.delete(2);
     t.notDeepEqual(value, origValueStruct);
 
-    state.rollback(value);
+    state.rollback();
     t.deepEqual(value, origValueStruct);
 });
