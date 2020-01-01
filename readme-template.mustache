@@ -48,7 +48,7 @@ someValue.c.push(9);
 
 console.log(someValue); // { a: 1, b: 200, c: [ 1, 2, 3, 9 ], x: 42 }
 
-state.rollback(someValue)
+state.rollback(someValue);
 
 console.log(someValue); // { a: 1, b: 2, c: [ 1, 2, 3 ] }
 ```
