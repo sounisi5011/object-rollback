@@ -16,7 +16,9 @@ Cancel changes to JavaScript object values (add/update/delete properties, add it
 
 ## Install
 
-WIP
+```sh
+npm install object-rollback
+```
 
 ## Usage
 
