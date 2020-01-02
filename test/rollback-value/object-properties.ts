@@ -2,6 +2,7 @@ import test from 'ava';
 import cloneDeep from 'lodash.clonedeep';
 
 import { ObjectState } from '../../src';
+import { inspectValue } from '../helpers/utils';
 
 test('should rollback object properties', t => {
     const symF = Symbol('F');
@@ -192,6 +193,13 @@ test('should rollback non-writable object properties', t => {
 
     const state = new ObjectState(value);
 
+    Object.assign(value, {
+        newProp01: 11,
+        newProp02: 12,
+        newProp03: 13,
+        newProp04: 14,
+        newProp05: 15,
+    });
     Object.defineProperties(value, {
         a: { value: 1 },
         b: {
@@ -204,6 +212,8 @@ test('should rollback non-writable object properties', t => {
             value: 4,
         },
         e: { value: 5 },
+        newProp02: { writable: false },
+        newProp04: { writable: false },
     });
     t.notDeepEqual(value, origValueStruct);
 
@@ -239,7 +249,10 @@ test('should rollback non-configurable object properties value', t => {
         },
         e: { value: 5 },
     });
+    const updatedValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
     t.notDeepEqual(value, origValueStruct);
+    t.notDeepEqual(updatedValuePropStruct, origValuePropStruct);
 
     t.notThrows(() => state.rollback());
 
@@ -249,26 +262,75 @@ test('should rollback non-configurable object properties value', t => {
         Object.getOwnPropertyDescriptors(value),
         origValuePropStruct,
     );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'a'),
-        origValuePropStruct.a,
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptors(value),
+        updatedValuePropStruct,
+    );
+    for (const propName of ['a', 'c', 'e']) {
+        t.deepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            origValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+    for (const propName of ['b', 'd']) {
+        t.notDeepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            origValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+        t.notDeepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            updatedValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+});
+
+test('should skip new non-configurable object properties', t => {
+    const value: Record<string, number> = { x: 1, y: 2 };
+    const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    const state = new ObjectState(value);
+
+    Object.assign(value, {
+        newProp01: 11,
+        newProp02: 12,
+        newProp03: 13,
+        newProp04: 14,
+        newProp05: 15,
+    });
+    Object.defineProperties(value, {
+        newProp02: { configurable: false },
+        newProp04: { configurable: false },
+    });
+    const updatedValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    t.notDeepEqual(updatedValuePropStruct, origValuePropStruct);
+
+    t.notThrows(() => state.rollback());
+
+    t.deepEqual(Object.getOwnPropertyNames(value), [
+        ...Object.getOwnPropertyNames(origValuePropStruct),
+        'newProp02',
+        'newProp04',
+    ]);
+
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptors(value),
+        origValuePropStruct,
     );
     t.notDeepEqual(
-        Object.getOwnPropertyDescriptor(value, 'b'),
-        origValuePropStruct.b,
+        Object.getOwnPropertyDescriptors(value),
+        updatedValuePropStruct,
     );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'c'),
-        origValuePropStruct.c,
-    );
-    t.notDeepEqual(
-        Object.getOwnPropertyDescriptor(value, 'd'),
-        origValuePropStruct.d,
-    );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'e'),
-        origValuePropStruct.e,
-    );
+    for (const propName of ['newProp02', 'newProp04']) {
+        t.deepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            updatedValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
 });
 
 test('should skip non-configurable and non-writable object properties', t => {
@@ -284,6 +346,13 @@ test('should skip non-configurable and non-writable object properties', t => {
 
     const state = new ObjectState(value);
 
+    Object.assign(value, {
+        newProp01: 11,
+        newProp02: 12,
+        newProp03: 13,
+        newProp04: 14,
+        newProp05: 15,
+    });
     Object.defineProperties(value, {
         a: { value: 1 },
         b: {
@@ -298,10 +367,21 @@ test('should skip non-configurable and non-writable object properties', t => {
             value: 4,
         },
         e: { value: 5 },
+        newProp02: { configurable: false, writable: false },
+        newProp04: { configurable: false, writable: false },
     });
+    const updatedValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
     t.notDeepEqual(value, origValueStruct);
+    t.notDeepEqual(updatedValuePropStruct, origValuePropStruct);
 
     t.notThrows(() => state.rollback());
+
+    t.deepEqual(Object.getOwnPropertyNames(value), [
+        ...Object.getOwnPropertyNames(origValueStruct),
+        'newProp02',
+        'newProp04',
+    ]);
 
     t.notDeepEqual(value, origValueStruct);
     t.is(value.a, origValueStruct.a);
@@ -314,24 +394,34 @@ test('should skip non-configurable and non-writable object properties', t => {
         Object.getOwnPropertyDescriptors(value),
         origValuePropStruct,
     );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'a'),
-        origValuePropStruct.a,
-    );
     t.notDeepEqual(
-        Object.getOwnPropertyDescriptor(value, 'b'),
-        origValuePropStruct.b,
+        Object.getOwnPropertyDescriptors(value),
+        updatedValuePropStruct,
     );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'c'),
-        origValuePropStruct.c,
-    );
-    t.notDeepEqual(
-        Object.getOwnPropertyDescriptor(value, 'd'),
-        origValuePropStruct.d,
-    );
-    t.deepEqual(
-        Object.getOwnPropertyDescriptor(value, 'e'),
-        origValuePropStruct.e,
-    );
+    for (const propName of ['a', 'c', 'e']) {
+        t.deepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            origValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+    for (const propName of ['b', 'd']) {
+        t.notDeepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            origValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+        t.deepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            updatedValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+    for (const propName of ['newProp02', 'newProp04']) {
+        t.deepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            updatedValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
 });
