@@ -262,14 +262,14 @@ test('should rollback non-configurable object properties value', t => {
     t.notThrows(() => state.rollback());
 
     t.notDeepEqual(value, origValueStruct);
-    for (const propName of ['a', 'b', 'c', 'e']) {
+    for (const propName of ['a', 'b', 'c', 'e'] as (keyof typeof value)[]) {
         t.is(
             value[propName],
             origValueStruct[propName],
             inspectValue({ propName }),
         );
     }
-    for (const propName of ['d']) {
+    for (const propName of ['d'] as (keyof typeof value)[]) {
         t.not(
             value[propName],
             origValueStruct[propName],
