@@ -19,18 +19,45 @@ export default class<T extends object = object> implements StateInterface {
     public rollback(): void {
         for (const propName of getAllProperties(this.__value)) {
             if (!this.__propDescMap.has(propName)) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-                // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
-                //                    No index signature with a parameter of type 'string' was found on type '{}'.
-                delete this.__value[propName];
+                Reflect.deleteProperty(this.__value, propName);
             }
         }
         for (const [propName, origDesc] of this.__propDescMap) {
-            Object.defineProperty(this.__value, propName, origDesc);
+            this.__rollbackProperty(this.__value, propName, origDesc);
         }
     }
 
     protected __getChildValueList(): ReadonlyArray<unknown> {
         return [...this.__propDescMap.values()].map(desc => desc.value);
+    }
+
+    private __rollbackProperty(
+        value: T,
+        propName: string | symbol,
+        origDesc: PropertyDescriptor,
+    ): void {
+        const currentDesc = Object.getOwnPropertyDescriptor(value, propName);
+        if (!currentDesc || currentDesc.configurable) {
+            this.__updateProperty(value, propName, origDesc, currentDesc);
+        } else if (
+            currentDesc.writable &&
+            Object.prototype.hasOwnProperty.call(origDesc, 'value')
+        ) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
+            //                    No index signature with a parameter of type 'string' was found on type '{}'.
+            value[propName] = origDesc.value;
+        }
+    }
+
+    private __updateProperty(
+        value: unknown,
+        propName: string | symbol,
+        origDesc: PropertyDescriptor,
+        currentDesc: PropertyDescriptor | undefined,
+    ): void {
+        if (currentDesc || Object.isExtensible(value)) {
+            Object.defineProperty(value, propName, origDesc);
+        }
     }
 }
