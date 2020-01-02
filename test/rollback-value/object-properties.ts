@@ -228,8 +228,12 @@ test('should rollback non-configurable object properties value', t => {
         a: 2,
         b: 7,
         c: 9,
-        d: 16,
-        e: 98,
+        get d() {
+            return 16;
+        },
+        get e() {
+            return 98;
+        },
     };
     const origValueStruct = cloneDeep(value);
     const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
@@ -245,9 +249,10 @@ test('should rollback non-configurable object properties value', t => {
         c: { value: 3 },
         d: {
             configurable: false,
+            writable: true,
             value: 4,
         },
-        e: { value: 5 },
+        e: { writable: true, value: 5 },
     });
     const updatedValuePropStruct = Object.getOwnPropertyDescriptors(value);
 
@@ -256,7 +261,21 @@ test('should rollback non-configurable object properties value', t => {
 
     t.notThrows(() => state.rollback());
 
-    t.deepEqual(value, origValueStruct);
+    t.notDeepEqual(value, origValueStruct);
+    for (const propName of ['a', 'b', 'c', 'e']) {
+        t.is(
+            value[propName],
+            origValueStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+    for (const propName of ['d']) {
+        t.not(
+            value[propName],
+            origValueStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
 
     t.notDeepEqual(
         Object.getOwnPropertyDescriptors(value),
@@ -273,13 +292,20 @@ test('should rollback non-configurable object properties value', t => {
             inspectValue({ propName }),
         );
     }
-    for (const propName of ['b', 'd']) {
+    for (const propName of ['b']) {
         t.notDeepEqual(
             Object.getOwnPropertyDescriptor(value, propName),
             origValuePropStruct[propName],
             inspectValue({ propName }),
         );
         t.notDeepEqual(
+            Object.getOwnPropertyDescriptor(value, propName),
+            updatedValuePropStruct[propName],
+            inspectValue({ propName }),
+        );
+    }
+    for (const propName of ['d']) {
+        t.deepEqual(
             Object.getOwnPropertyDescriptor(value, propName),
             updatedValuePropStruct[propName],
             inspectValue({ propName }),
