@@ -43,7 +43,10 @@ export default class<T extends object = object> implements StateInterface {
             }
         } else if (currentDesc.configurable) {
             Object.defineProperty(value, propName, origDesc);
-        } else if (currentDesc.writable) {
+        } else if (
+            currentDesc.writable &&
+            Object.prototype.hasOwnProperty.call(origDesc, 'value')
+        ) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
             // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
             //                    No index signature with a parameter of type 'string' was found on type '{}'.
