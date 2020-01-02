@@ -50,7 +50,11 @@ export default class<T extends object = object> implements StateInterface {
         origDesc: PropertyDescriptor,
     ): void {
         const currentDesc = Object.getOwnPropertyDescriptor(value, propName);
-        if (!currentDesc || currentDesc.configurable) {
+        if (!currentDesc) {
+            if (Object.isExtensible(value)) {
+                Object.defineProperty(value, propName, origDesc);
+            }
+        } else if (currentDesc.configurable) {
             Object.defineProperty(value, propName, origDesc);
         } else if (currentDesc.writable) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
