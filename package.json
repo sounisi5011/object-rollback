@@ -1,6 +1,6 @@
 {
   "name": "object-rollback",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Cancel changes to JavaScript object values (add/update/delete properties, add item into Map/Set, etc.)",
   "keywords": [],
   "license": "MIT",
