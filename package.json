@@ -95,7 +95,7 @@
     "@sounisi5011/readme-generator": "file:script/readme-generator",
     "@types/deep-freeze-strict": "1.1.0",
     "@types/lodash.clonedeep": "4.5.6",
-    "@types/node": "12.12.22",
+    "@types/node": "12.x",
     "@typescript-eslint/eslint-plugin": "2.14.0",
     "@typescript-eslint/parser": "2.14.0",
     "ava": "2.4.0",
