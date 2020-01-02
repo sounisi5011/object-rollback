@@ -26,7 +26,18 @@ export default class<T extends object = object> implements StateInterface {
             }
         }
         for (const [propName, origDesc] of this.__propDescMap) {
-            Object.defineProperty(this.__value, propName, origDesc);
+            const currentDesc = Object.getOwnPropertyDescriptor(
+                this.__value,
+                propName,
+            );
+            if (!currentDesc || currentDesc.configurable) {
+                Object.defineProperty(this.__value, propName, origDesc);
+            } else if (currentDesc.writable) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+                // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
+                //                    No index signature with a parameter of type 'string' was found on type '{}'.
+                this.__value[propName] = origDesc.value;
+            }
         }
     }
 
