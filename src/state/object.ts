@@ -19,10 +19,16 @@ export default class<T extends object = object> implements StateInterface {
     public rollback(): void {
         for (const propName of getAllProperties(this.__value)) {
             if (!this.__propDescMap.has(propName)) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-                // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
-                //                    No index signature with a parameter of type 'string' was found on type '{}'.
-                delete this.__value[propName];
+                try {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+                    // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
+                    //                    No index signature with a parameter of type 'string' was found on type '{}'.
+                    delete this.__value[propName];
+                } catch (error) {
+                    if (!(error instanceof TypeError)) {
+                        throw error;
+                    }
+                }
             }
         }
         for (const [propName, origDesc] of this.__propDescMap) {
