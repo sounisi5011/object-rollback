@@ -178,3 +178,160 @@ test('should rollback circular object properties', t => {
     state.rollback();
     t.deepEqual(value, origValueStruct);
 });
+
+test('should rollback non-writable object properties', t => {
+    const value = {
+        a: 2,
+        b: 7,
+        c: 9,
+        d: 16,
+        e: 98,
+    };
+    const origValueStruct = cloneDeep(value);
+    const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    const state = new ObjectState(value);
+
+    Object.defineProperties(value, {
+        a: { value: 1 },
+        b: {
+            writable: false,
+            value: 2,
+        },
+        c: { value: 3 },
+        d: {
+            writable: false,
+            value: 4,
+        },
+        e: { value: 5 },
+    });
+    t.notDeepEqual(value, origValueStruct);
+
+    t.notThrows(() => state.rollback());
+
+    t.deepEqual(value, origValueStruct);
+    t.deepEqual(Object.getOwnPropertyDescriptors(value), origValuePropStruct);
+});
+
+test('should rollback non-configurable object properties value', t => {
+    const value = {
+        a: 2,
+        b: 7,
+        c: 9,
+        d: 16,
+        e: 98,
+    };
+    const origValueStruct = cloneDeep(value);
+    const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    const state = new ObjectState(value);
+
+    Object.defineProperties(value, {
+        a: { value: 1 },
+        b: {
+            configurable: false,
+            value: 2,
+        },
+        c: { value: 3 },
+        d: {
+            configurable: false,
+            value: 4,
+        },
+        e: { value: 5 },
+    });
+    t.notDeepEqual(value, origValueStruct);
+
+    t.notThrows(() => state.rollback());
+
+    t.deepEqual(value, origValueStruct);
+
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptors(value),
+        origValuePropStruct,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'a'),
+        origValuePropStruct.a,
+    );
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptor(value, 'b'),
+        origValuePropStruct.b,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'c'),
+        origValuePropStruct.c,
+    );
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptor(value, 'd'),
+        origValuePropStruct.d,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'e'),
+        origValuePropStruct.e,
+    );
+});
+
+test('should skip non-configurable and non-writable object properties', t => {
+    const value = {
+        a: 2,
+        b: 7,
+        c: 9,
+        d: 16,
+        e: 98,
+    };
+    const origValueStruct = cloneDeep(value);
+    const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    const state = new ObjectState(value);
+
+    Object.defineProperties(value, {
+        a: { value: 1 },
+        b: {
+            configurable: false,
+            writable: false,
+            value: 2,
+        },
+        c: { value: 3 },
+        d: {
+            configurable: false,
+            writable: false,
+            value: 4,
+        },
+        e: { value: 5 },
+    });
+    t.notDeepEqual(value, origValueStruct);
+
+    t.notThrows(() => state.rollback());
+
+    t.notDeepEqual(value, origValueStruct);
+    t.is(value.a, origValueStruct.a);
+    t.not(value.b, origValueStruct.b);
+    t.is(value.c, origValueStruct.c);
+    t.not(value.d, origValueStruct.d);
+    t.is(value.e, origValueStruct.e);
+
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptors(value),
+        origValuePropStruct,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'a'),
+        origValuePropStruct.a,
+    );
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptor(value, 'b'),
+        origValuePropStruct.b,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'c'),
+        origValuePropStruct.c,
+    );
+    t.notDeepEqual(
+        Object.getOwnPropertyDescriptor(value, 'd'),
+        origValuePropStruct.d,
+    );
+    t.deepEqual(
+        Object.getOwnPropertyDescriptor(value, 'e'),
+        origValuePropStruct.e,
+    );
+});
