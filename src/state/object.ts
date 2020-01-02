@@ -38,9 +38,7 @@ export default class<T extends object = object> implements StateInterface {
     ): void {
         const currentDesc = Object.getOwnPropertyDescriptor(value, propName);
         if (!currentDesc || currentDesc.configurable) {
-            if (currentDesc || Object.isExtensible(value)) {
-                Object.defineProperty(value, propName, origDesc);
-            }
+            this.__updateProperty(value, propName, origDesc, currentDesc);
         } else if (
             currentDesc.writable &&
             Object.prototype.hasOwnProperty.call(origDesc, 'value')
@@ -49,6 +47,17 @@ export default class<T extends object = object> implements StateInterface {
             // @ts-ignore TS7053: Element implicitly has an 'any' type because expression of type 'string | symbol' can't be used to index type '{}'.
             //                    No index signature with a parameter of type 'string' was found on type '{}'.
             value[propName] = origDesc.value;
+        }
+    }
+
+    private __updateProperty(
+        value: unknown,
+        propName: string | symbol,
+        origDesc: PropertyDescriptor,
+        currentDesc: PropertyDescriptor | undefined,
+    ): void {
+        if (currentDesc || Object.isExtensible(value)) {
+            Object.defineProperty(value, propName, origDesc);
         }
     }
 }
