@@ -37,12 +37,10 @@ export default class<T extends object = object> implements StateInterface {
         origDesc: PropertyDescriptor,
     ): void {
         const currentDesc = Object.getOwnPropertyDescriptor(value, propName);
-        if (!currentDesc) {
-            if (Object.isExtensible(value)) {
+        if (!currentDesc || currentDesc.configurable) {
+            if (currentDesc || Object.isExtensible(value)) {
                 Object.defineProperty(value, propName, origDesc);
             }
-        } else if (currentDesc.configurable) {
-            Object.defineProperty(value, propName, origDesc);
         } else if (
             currentDesc.writable &&
             Object.prototype.hasOwnProperty.call(origDesc, 'value')
