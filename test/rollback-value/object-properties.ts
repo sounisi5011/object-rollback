@@ -425,3 +425,34 @@ test('should skip non-configurable and non-writable object properties', t => {
         );
     }
 });
+
+test('should skip removed properties rollback to non-extensible objects', t => {
+    const value = {
+        a: 2,
+        b: 7,
+        c: 9,
+        d: 16,
+        e: 98,
+    };
+    const origValuePropStruct = Object.getOwnPropertyDescriptors(value);
+
+    const state = new ObjectState(value);
+
+    value.a = 1;
+    delete value.b;
+    value.c = 2;
+    delete value.d;
+    value.e = 3;
+    Object.preventExtensions(value);
+
+    t.notThrows(() => state.rollback());
+
+    t.deepEqual<Record<string, TypedPropertyDescriptor<number>>>(
+        Object.getOwnPropertyDescriptors(value),
+        {
+            a: origValuePropStruct.a,
+            c: origValuePropStruct.c,
+            e: origValuePropStruct.e,
+        },
+    );
+});
