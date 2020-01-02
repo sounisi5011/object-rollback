@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
+### Others
+
+* [#8] - Update license date from 2019 to 2020
+
 [Unreleased]: https://github.com/sounisi5011/object-rollback/compare/v1.0.0...master
+[#8]: https://github.com/sounisi5011/object-rollback/pull/8
 
 ## [1.0.0] - 2020-01-02 UTC
 
